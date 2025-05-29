@@ -29,5 +29,5 @@ uci -q set "firewall.@defaults[0].flow_offloading_hw"='0'
 uci -q set "firewall.@defaults[0].flow_offloading"='0'
 uci -q set "firewall.@defaults[0].fullcone"='0'
 
-fw3 reload &
+/etc/init.d/firewall reload &
 
