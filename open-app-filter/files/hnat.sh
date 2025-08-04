@@ -31,6 +31,11 @@ disable_offload_nat6()
 		uci -q del firewall.@defaults[0].flow_offloading
 		uci commit firewall
 	fi
+	if [ $(uci -q get firewall.@defaults[0].flow_offloading_hw) -ge 1 ]; then
+		touch /etc/appfilter/flow_offloading_hw
+		uci -q del firewall.@defaults[0].flow_offloading_hw
+		uci commit firewall
+	fi
 	if [ $(uci -q get firewall.@defaults[0].nat6) -ge 1 ]; then
 		touch /etc/appfilter/firewall_nat6
 		uci -q del firewall.@defaults[0].nat6
@@ -47,6 +52,13 @@ enable_offload()
 	uci commit firewall
 }
 
+enable_offload_hw()
+{
+	rm -f /etc/appfilter/flow_offloading_hw
+	uci -q set firewall.@defaults[0].flow_offloading_hw='1'
+	uci commit firewall
+}
+
 enable_nat6()
 {
 	rm -f /etc/appfilter/firewall_nat6
@@ -57,8 +69,8 @@ enable_nat6()
 
 if [ "$1" = "restore" ]; then
 	[ -f "/etc/appfilter/flow_offloading" ] && enable_offload
+	[ -f "/etc/appfilter/flow_offloading_hw" ] && enable_offload_hw
 	[ -f "/etc/appfilter/firewall_nat6" ] && enable_nat6
 else
 	disable_offload_nat6
 fi
-

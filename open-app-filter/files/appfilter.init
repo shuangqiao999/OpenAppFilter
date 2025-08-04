@@ -12,6 +12,13 @@ enable_offload()
 	uci commit firewall
 }
 
+enable_offload_hw()
+{
+	rm -f /etc/appfilter/flow_offloading_hw
+	uci -q set firewall.@defaults[0].flow_offloading='1'
+	uci commit firewall
+}
+
 enable_nat6()
 {
 	rm -f /etc/appfilter/firewall_nat6
@@ -23,6 +30,7 @@ enable_nat6()
 stop_service(){
 	killall -9 oafd
 	[ -f "/etc/appfilter/flow_offloading" ] && enable_offload
+	[ -f "/etc/appfilter/flow_offloading_hw" ] && enable_offload_hw
 	[ -f "/etc/appfilter/firewall_nat6" ] && enable_nat6
 }
 
