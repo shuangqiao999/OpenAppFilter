@@ -5,8 +5,25 @@ USE_PROCD=1
 OAFD_BIN="/usr/bin/oafd"
 FEATURE_FILE="/tmp/feature.cfg"
 
+enable_offload()
+{
+	rm -f /etc/appfilter/flow_offloading
+	uci -q set firewall.@defaults[0].flow_offloading='1'
+	uci commit firewall
+}
+
+enable_nat6()
+{
+	rm -f /etc/appfilter/firewall_nat6
+	uci -q set firewall.@defaults[0].nat6='1'
+	uci commit firewall
+	/etc/init.d/nat6 reload >/dev/null 2>&1
+}
+
 stop_service(){
 	killall -9 oafd
+	[ -f "/etc/appfilter/flow_offloading" ] && enable_offload
+	[ -f "/etc/appfilter/firewall_nat6" ] && enable_nat6
 }
 
 start_service(){

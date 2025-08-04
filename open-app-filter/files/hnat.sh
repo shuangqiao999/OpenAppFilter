@@ -1,5 +1,3 @@
-. /usr/share/libubox/jshn.sh
-. /lib/functions.sh
 
 disable_hnat=`uci get appfilter.global.disable_hnat`
 
@@ -26,10 +24,41 @@ test -f /etc/config/turboacc && {
     /etc/init.d/turboacc restart &
 }
 
-uci -q set "firewall.@defaults[0].flow_offloading_hw"='0'
-uci -q set "firewall.@defaults[0].flow_offloading"='0'
-uci -q set "firewall.@defaults[0].fullcone"='0'
-uci -q commit firewall
+disable_offload_nat6()
+{
+	if [ $(uci -q get firewall.@defaults[0].flow_offloading) -ge 1 ]; then
+		touch /etc/appfilter/flow_offloading
+		uci -q del firewall.@defaults[0].flow_offloading
+		uci commit firewall
+	fi
+	if [ $(uci -q get firewall.@defaults[0].nat6) -ge 1 ]; then
+		touch /etc/appfilter/firewall_nat6
+		uci -q del firewall.@defaults[0].nat6
+		uci commit firewall
+		/etc/init.d/nat6 reload >/dev/null 2>&1
+	fi
+	/etc/init.d/firewall reload >/dev/null 2>&1
+}
 
-/etc/init.d/firewall reload &
+enable_offload()
+{
+	rm -f /etc/appfilter/flow_offloading
+	uci -q set firewall.@defaults[0].flow_offloading='1'
+	uci commit firewall
+}
+
+enable_nat6()
+{
+	rm -f /etc/appfilter/firewall_nat6
+	uci -q set firewall.@defaults[0].nat6='1'
+	uci commit firewall
+	/etc/init.d/nat6 reload >/dev/null 2>&1
+}
+
+if [ "$1" = "restore" ]; then
+	[ -f "/etc/appfilter/flow_offloading" ] && enable_offload
+	[ -f "/etc/appfilter/firewall_nat6" ] && enable_nat6
+else
+	disable_offload_nat6
+fi
 
