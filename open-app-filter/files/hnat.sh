@@ -25,11 +25,3 @@ test -f /etc/config/turboacc && {
     uci -q commit turboacc
     /etc/init.d/turboacc restart &
 }
-
-uci -q set "firewall.@defaults[0].flow_offloading_hw"='0'
-uci -q set "firewall.@defaults[0].flow_offloading"='0'
-uci -q set "firewall.@defaults[0].fullcone"='0'
-uci -q commit firewall
-
-/etc/init.d/firewall reload &
-
