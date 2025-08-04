@@ -12,7 +12,7 @@ TARGET_CFLAGS +=-Werror=implicit-function-declaration
 define Package/appfilter
   SECTION:=TT Apps
   CATEGORY:=TT Apps
-  DEPENDS:=+libubox +libubus +libuci +libpthread +libjson-c +libblobmsg-json
+  DEPENDS:=+kmod-oaf +libubox +libubus +libuci +libpthread +libjson-c +libblobmsg-json
   TITLE:=OAF client and config service
 endef
 
